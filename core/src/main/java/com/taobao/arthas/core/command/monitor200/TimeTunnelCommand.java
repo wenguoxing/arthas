@@ -4,11 +4,11 @@ import com.taobao.arthas.core.advisor.AdviceListener;
 import com.taobao.arthas.core.command.Constants;
 import com.taobao.arthas.core.command.express.ExpressException;
 import com.taobao.arthas.core.command.express.ExpressFactory;
-import com.taobao.arthas.core.shell.cli.Completion;
 import com.taobao.arthas.core.shell.command.CommandProcess;
 import com.taobao.arthas.core.advisor.Advice;
 import com.taobao.arthas.core.advisor.ArthasMethod;
 import com.taobao.arthas.core.shell.handlers.command.CommandInterruptHandler;
+import com.taobao.arthas.core.shell.handlers.shell.QExitHandler;
 import com.taobao.arthas.core.util.LogUtil;
 import com.taobao.arthas.core.util.SearchUtils;
 import com.taobao.arthas.core.util.StringUtils;
@@ -42,10 +42,10 @@ import static java.lang.String.format;
         "  tt -t *StringUtils isEmpty\n" +
         "  tt -t *StringUtils isEmpty params[0].length==1\n" +
         "  tt -l\n" +
-        "  tt -D\n" +
-        "  tt -i 1000 -w params[0]\n" +
-        "  tt -i 1000 -d\n" +
         "  tt -i 1000\n" +
+        "  tt -i 1000 -w params[0]\n" +
+        "  tt -i 1000 -p\n" +
+        "  tt --delete-all\n" +
         Constants.WIKI + Constants.WIKI_HOME + "tt")
 public class TimeTunnelCommand extends EnhancerCommand {
     // 时间隧道(时间碎片的集合)
@@ -106,7 +106,7 @@ public class TimeTunnelCommand extends EnhancerCommand {
         isList = list;
     }
 
-    @Option(shortName = "D", longName = "delete-all", flag = true)
+    @Option(longName = "delete-all", flag = true)
     @Description("Delete all the time fragments")
     public void setDeleteAll(boolean deleteAll) {
         isDeleteAll = deleteAll;
@@ -242,6 +242,8 @@ public class TimeTunnelCommand extends EnhancerCommand {
 
         // ctrl-C support
         process.interruptHandler(new CommandInterruptHandler(process));
+        // q exit support
+        process.stdinHandler(new QExitHandler(process));
 
         if (isTimeTunnel) {
             enhance(process);
@@ -285,12 +287,6 @@ public class TimeTunnelCommand extends EnhancerCommand {
         return new TimeTunnelAdviceListener(this, process);
     }
 
-    @Override
-    protected boolean completeExpress(Completion completion) {
-        completion.complete(EMPTY);
-        return true;
-    }
-
     // 展示指定记录
     private void processShow(CommandProcess process) {
         RowAffect affect = new RowAffect();
@@ -332,7 +328,7 @@ public class TimeTunnelCommand extends EnhancerCommand {
             }
 
             Advice advice = tf.getAdvice();
-            Object value = ExpressFactory.newExpress(advice).get(watchExpress);
+            Object value = ExpressFactory.threadLocalExpress(advice).get(watchExpress);
             if (isNeedExpand()) {
                 process.write(new ObjectView(value, expand, sizeLimit).draw()).write("\n");
             } else {
@@ -361,7 +357,7 @@ public class TimeTunnelCommand extends EnhancerCommand {
                 Advice advice = tf.getAdvice();
 
                 // 搜索出匹配的时间片段
-                if ((ExpressFactory.newExpress(advice)).is(searchExpress)) {
+                if ((ExpressFactory.threadLocalExpress(advice)).is(searchExpress)) {
                     matchingTimeSegmentMap.put(index, tf);
                 }
             }
