@@ -3,6 +3,7 @@ package com.taobao.arthas.boot;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -17,7 +18,6 @@ import com.taobao.arthas.common.AnsiLog;
 import com.taobao.arthas.common.ExecutingCommand;
 import com.taobao.arthas.common.IOUtils;
 import com.taobao.arthas.common.JavaVersionUtils;
-import com.taobao.arthas.common.PidUtils;
 
 /**
  *
@@ -25,20 +25,30 @@ import com.taobao.arthas.common.PidUtils;
  *
  */
 public class ProcessUtils {
+    private static String PID = "-1";
     private static String FOUND_JAVA_HOME = null;
 
-    @SuppressWarnings("resource")
-    public static int select(boolean v, int telnetPortPid) throws InputMismatchException {
-        Map<Integer, String> processMap = listProcessByJps(v);
-        // Put the port that is already listening at the first
-        if (telnetPortPid > 0 && processMap.containsKey(telnetPortPid)) {
-            String telnetPortProcess = processMap.get(telnetPortPid);
-            processMap.remove(telnetPortPid);
-            Map<Integer, String> newProcessMap = new LinkedHashMap<Integer, String>();
-            newProcessMap.put(telnetPortPid, telnetPortProcess);
-            newProcessMap.putAll(processMap);
-            processMap = newProcessMap;
+    static {
+        // https://stackoverflow.com/a/7690178
+        String jvmName = ManagementFactory.getRuntimeMXBean().getName();
+        int index = jvmName.indexOf('@');
+
+        if (index > 0) {
+            try {
+                PID = Long.toString(Long.parseLong(jvmName.substring(0, index)));
+            } catch (Throwable e) {
+                // ignore
+            }
         }
+    }
+
+    public static String getPid() {
+        return PID;
+    }
+
+    @SuppressWarnings("resource")
+    public static int select(boolean v) throws InputMismatchException {
+        Map<Integer, String> processMap = listProcessByJps(v);
 
         if (processMap.isEmpty()) {
             AnsiLog.info("Can not find java process. Try to pass <pid> in command line.");
@@ -101,7 +111,7 @@ public class ProcessUtils {
 
         List<String> lines = ExecutingCommand.runNative(command);
 
-        int currentPid = Integer.parseInt(PidUtils.currentPid());
+        int currentPid = Integer.parseInt(ProcessUtils.getPid());
         for (String line : lines) {
             String[] strings = line.trim().split("\\s+");
             if (strings.length < 1) {

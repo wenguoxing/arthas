@@ -164,7 +164,7 @@ public class ClassLoaderCommand extends AnnotatedCommand {
         process.end();
     }
 
-    // 根据 hashCode 来打印URLClassLoader的urls
+    // 据 hashCode 来打印URLClassLoader的urls
     private void processClassloader(CommandProcess process, Instrumentation inst) {
         RowAffect affect = new RowAffect();
 

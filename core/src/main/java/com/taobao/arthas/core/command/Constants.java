@@ -31,7 +31,6 @@ public interface Constants {
                                 "  params\n" +
                                 "  params[0]\n" +
                                 "  'params[0]+params[1]'\n" +
-                                "  '{params[0], target, returnObj}'\n" +
                                 "  returnObj\n" +
                                 "  throwExp\n" +
                                 "  target\n" +

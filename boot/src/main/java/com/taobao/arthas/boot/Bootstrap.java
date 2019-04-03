@@ -44,7 +44,7 @@ import com.taobao.middleware.cli.annotations.Summary;
                 + "  java -jar arthas-boot.jar --telnet-port 9999 --http-port -1\n"
                 + "  java -jar arthas-boot.jar -c 'sysprop; thread' <pid>\n"
                 + "  java -jar arthas-boot.jar -f batch.as <pid>\n"
-                + "  java -jar arthas-boot.jar --use-version 3.1.0\n"
+                + "  java -jar arthas-boot.jar --use-version 3.0.5\n"
                 + "  java -jar arthas-boot.jar --versions\n"
                 + "  java -jar arthas-boot.jar --session-timeout 3600\n" + "  java -jar arthas-boot.jar --attach-only\n"
                 + "  java -jar arthas-boot.jar --repo-mirror aliyun --use-http\n" + "WIKI:\n"
@@ -67,16 +67,13 @@ public class Bootstrap {
      */
     private Long sessionTimeout;
 
-    private Integer height = null;
-    private Integer width = null;
-
     private boolean verbose = false;
 
     /**
      * <pre>
      * The directory contains arthas-core.jar/arthas-client.jar/arthas-spy.jar.
      * 1. When use-version is not empty, try to find arthas home under ~/.arthas/lib
-     * 2. Try set the directory where arthas-boot.jar is located to arthas home
+     * 2. Try set the directory where arthas-boot.jar is located to arhtas home
      * 3. Try to download from maven repo
      * </pre>
      */
@@ -191,18 +188,6 @@ public class Bootstrap {
         this.batchFile = batchFile;
     }
 
-    @Option(longName = "height")
-    @Description("arthas-client terminal height")
-    public void setHeight(int height) {
-        this.height = height;
-    }
-
-    @Option(longName = "width")
-    @Description("arthas-client terminal width")
-    public void setWidth(int width) {
-        this.width = width;
-    }
-
     @Option(shortName = "v", longName = "verbose", flag = true)
     @Description("Verbose, print debug info.")
     public void setVerbose(boolean verbose) {
@@ -286,7 +271,7 @@ public class Bootstrap {
         // select pid
         if (pid < 0) {
             try {
-                pid = ProcessUtils.select(bootstrap.isVerbose(), telnetPortPid);
+                pid = ProcessUtils.select(bootstrap.isVerbose());
             } catch (InputMismatchException e) {
                 System.out.println("Please input an integer to select pid.");
                 System.exit(1);
@@ -300,18 +285,18 @@ public class Bootstrap {
         if (telnetPortPid > 0 && pid != telnetPortPid) {
             AnsiLog.error("Target process {} is not the process using port {}, you will connect to an unexpected process.",
                             pid, bootstrap.getTelnetPort());
-            AnsiLog.error("1. Try to restart arthas-boot, select process {}, shutdown it first.",
-                            telnetPortPid);
-            AnsiLog.error("2. Or try to use different telnet port, for example: java -jar arthas-boot.jar --telnet-port 9998 --http-port -1");
+            AnsiLog.error("If you still want to attach target process {}, Try to set a different telnet port by using --telnet-port argument.",
+                            pid);
+            AnsiLog.error("Or try to shutdown the process {} using the telnet port first.", telnetPortPid);
             System.exit(1);
         }
 
         if (httpPortPid > 0 && pid != httpPortPid) {
             AnsiLog.error("Target process {} is not the process using port {}, you will connect to an unexpected process.",
                             pid, bootstrap.getHttpPort());
-            AnsiLog.error("1. Try to restart arthas-boot, select process {}, shutdown it first.",
-                            httpPortPid);
-            AnsiLog.error("2. Or try to use different http port, for example: java -jar arthas-boot.jar --telnet-port 9998 --http-port 9999", httpPortPid);
+            AnsiLog.error("If you still want to attach target process {}, Try to set a different http port by using --http-port argument.",
+                            pid);
+            AnsiLog.error("Or try to shutdown the process {} using the http port first.", httpPortPid);
             System.exit(1);
         }
 
@@ -338,12 +323,11 @@ public class Bootstrap {
         if (arthasHomeDir == null) {
             CodeSource codeSource = Bootstrap.class.getProtectionDomain().getCodeSource();
             if (codeSource != null) {
+                String bootJarPath = codeSource.getLocation().getFile();
                 try {
-                    // https://stackoverflow.com/a/17870390
-                    File bootJarPath = new File(codeSource.getLocation().toURI().getSchemeSpecificPart());
-                    verifyArthasHome(bootJarPath.getParent());
-                    arthasHomeDir = bootJarPath.getParentFile();
-                } catch (Throwable e) {
+                    verifyArthasHome(new File(bootJarPath).getParent());
+                    arthasHomeDir = new File(bootJarPath).getParentFile();
+                } catch (Exception e) {
                     // ignore
                 }
 
@@ -464,14 +448,6 @@ public class Bootstrap {
             telnetArgs.add("-f");
             telnetArgs.add(bootstrap.getBatchFile());
         }
-        if (bootstrap.getHeight() != null) {
-            telnetArgs.add("--height");
-            telnetArgs.add("" + bootstrap.getHeight());
-        }
-        if (bootstrap.getWidth() != null) {
-            telnetArgs.add("--width");
-            telnetArgs.add("" + bootstrap.getWidth());
-        }
 
         // telnet port ,ip
         telnetArgs.add(bootstrap.getTargetIp());
@@ -524,7 +500,7 @@ public class Bootstrap {
     private static void verifyArthasHome(String arthasHome) {
         File home = new File(arthasHome);
         if (home.isDirectory()) {
-            String[] fileList = { "arthas-core.jar", "arthas-agent.jar", "arthas-spy.jar" };
+            String fileList[] = { "arthas-core.jar", "arthas-agent.jar", "arthas-spy.jar" };
 
             for (String fileName : fileList) {
                 if (!new File(home, fileName).exists()) {
@@ -604,13 +580,5 @@ public class Bootstrap {
 
     public boolean isVersions() {
         return versions;
-    }
-
-    public Integer getHeight() {
-        return height;
-    }
-
-    public Integer getWidth() {
-        return width;
     }
 }

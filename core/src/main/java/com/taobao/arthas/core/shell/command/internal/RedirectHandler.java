@@ -50,8 +50,6 @@ public class RedirectHandler extends PlainTextHandler implements CloseFunction {
 
     @Override
     public void close() {
-        if (out != null) {
-            out.close();
-        }
+        out.close();
     }
 }

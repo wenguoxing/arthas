@@ -61,6 +61,4 @@ FROM openjdk:8-jdk-alpine
 COPY --from=hengyunabc/arthas:latest /opt/arthas /opt/arthas
 ```
 
-如果想指定版本，可以查看具体的tags：
-
-[https://hub.docker.com/r/hengyunabc/arthas/tags](https://hub.docker.com/r/hengyunabc/arthas/tags)
+[https://hub.docker.com/r/hengyunabc/arthas](https://hub.docker.com/r/hengyunabc/arthas)

@@ -1,7 +1,7 @@
 package com.taobao.arthas.core.command.monitor200;
 
-import com.taobao.arthas.core.advisor.Advice;
 import com.taobao.arthas.core.command.express.ExpressException;
+import com.taobao.arthas.core.advisor.Advice;
 import com.taobao.arthas.core.command.express.ExpressFactory;
 import com.taobao.arthas.core.util.StringUtils;
 import com.taobao.arthas.core.view.ObjectView;
@@ -179,11 +179,10 @@ public class TimeTunnelTable {
     }
 
     static void drawPlayResult(TableElement table, Object returnObj, boolean isNeedExpand, int expandLevel,
-                               int sizeLimit, double cost) {
+                               int sizeLimit) {
         // 执行成功:输出成功状态
         table.row("IS-RETURN", "" + true);
         table.row("IS-EXCEPTION", "" + false);
-        table.row("COST(ms)", "" + cost);
 
         // 执行成功:输出成功结果
         if (isNeedExpand) {

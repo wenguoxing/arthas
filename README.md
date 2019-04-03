@@ -11,23 +11,23 @@
 
 `Arthas` is a Java Diagnostic tool open sourced by Alibaba.
 
-Arthas allows developers to troubleshoot production issues for Java applications without modifying code or restarting servers.
+Arthas help developers in trouble-shooting production issues for Java applications without modifying code or restarting servers.
 
 [中文说明/Chinese Documentation](README_CN.md)
 
 ### Background
 
-Often times, the production system network is inaccessible from the local development environment. If issues are encountered in production systems, it is impossible to use IDEs to debug the application remotely. More importantly, debugging in production environment is unacceptable, as it will suspend all the threads, resulting in the suspension of business services. 
+Often times, the production system network is inaccessible from local development environment. If issues are encountered in production systems, it is impossible to use IDE to debug the application remotely. More importantly, debugging in production environment is unacceptable, as it will suspend all the threads, which leads to blocking of business services. 
 
 Developers could always try to reproduce the same issue on the test/staging environment. However, this is tricky as some issues cannot be be reproduced easily on a different environment, or even disappear once restarted. 
 
-And if you're thinking of adding some logs to your code to help troubleshoot the issue, you will have to go through the following lifecycle; test, staging, and then to production. Time is money! This approach is inefficient! Besides, the issue may not be reproducible once the JVM is restarted, as described above.
+And if you're thinking of adding some logs to your code to help trouble-shoot the issue, you will have to go through the following lifecycle; test, staging, and then to production. Time is money! This approach is inefficient! Besides, the issue may not be reproducible once the JVM is restarted, as described above.
 
-Arthas was built to solve these issues. A developer can troubleshoot your production issues on-the-fly. No JVM restart, no additional code changes. Arthas works as an observer, which will never suspend your existing threads.
+Arthas was built to solve these issues. A developer can trouble-shoot your production issues on-the-fly. No JVM restart, no additional code changes. Arthas works as an observer, which will never suspend your existing threads.
 
 ### Key features
 
-* Check whether a class is loaded, or where the class is being loaded. (Useful for troubleshooting jar file conflicts)
+* Check whether a class is loaded? Or where the class is loaded from? (Useful for trouble-shooting jar file conflicts)
 * Decompile a class to ensure the code is running as expected.
 * View classloader statistics, e.g. the number of classloaders, the number of classes loaded per classloader, the classloader hierarchy, possible classloader leaks, etc.
 * View the method invocation details, e.g. method parameter, return object, thrown exception, and etc.
@@ -37,14 +37,8 @@ Arthas was built to solve these issues. A developer can troubleshoot your produc
 * Monitor system metrics, thread states and cpu usage, gc statistics, and etc.
 * Supports command line interactive mode, with auto-complete feature enabled.
 * Supports telnet and websocket, which enables both local and remote diagnostics with command line and browsers.
-* Supports JDK 6+.
-* Supports Linux/Mac/Windows.
-
-
-### Online Tutorials(Recommend)
-
-* [Arthas Basics](https://alibaba.github.io/arthas/arthas-tutorials?language=en&id=arthas-basics)
-* [Arthas Advanced](https://alibaba.github.io/arthas/arthas-tutorials?language=en&id=arthas-advanced)
+* Supports JDK 6+
+* Supports Linux/Mac/Windows
 
 ### Quick start
 
@@ -65,7 +59,7 @@ java -jar arthas-boot.jar -h
 
 #### Use `as.sh`
 
-You can install Arthas with one single line command on Linux, Unix, and Mac. Copy the following command and paste it into the command line, then press *Enter* to run:
+You can install Arthas with one single line command on Linux, Unix, and Mac. Pls. copy the following command and paste it into the command line, then press *Enter* to run:
 
 ```bash
 curl -L https://alibaba.github.io/arthas/install.sh | sh
@@ -78,7 +72,6 @@ You can enter its interactive interface by executing `as.sh`, or execute `as.sh 
 
 ### Documentation
 
-* [Online Tutorials(Recommend)](https://alibaba.github.io/arthas/arthas-tutorials?language=en)
 * [User manual](https://alibaba.github.io/arthas/en)
 * [Installation](https://alibaba.github.io/arthas/en/install-detail.html)
 * [Quick start](https://alibaba.github.io/arthas/en/quick-start.html)
@@ -103,7 +96,7 @@ You can enter its interactive interface by executing `as.sh`, or execute `as.sh 
 
 See what is eating your cpu (ranked by top cpu usage) and what is going on there in one glance:
 
-```bash
+```
 $ thread -n 3
 "as-command-execute-daemon" Id=29 cpuUsage=75% RUNNABLE
     at sun.management.ThreadImpl.dumpThreads0(Native Method)
@@ -169,28 +162,11 @@ public interface Servlet {
 }
 ```
 
-#### mc
-
-Memory compiler, compiles `.java` files into `.class` files in memory.
-
-```bash
-mc /tmp/Test.java
-```
-
-#### redefine
-
-Load the external `*.class` files to re-define the loaded classes in JVM.
-
-```bash
-redefine /tmp/Test.class
-redefine -c 327a647b /tmp/Test.class /tmp/Test\$Inner.class
-```
-
 #### sc
 
 Search any loaded class with detailed information.
 
-```bash
+```
 $ sc -d org.springframework.web.context.support.XmlWebApplicationContext
  class-info        org.springframework.web.context.support.XmlWebApplicationContext
  code-source       /Users/xxx/work/test/WEB-INF/lib/spring-web-3.2.11.RELEASE.jar
@@ -226,7 +202,7 @@ $ sc -d org.springframework.web.context.support.XmlWebApplicationContext
 
 View the call stack of `test.arthas.TestStack#doGet`:
 
-```bash
+```
 $ stack test.arthas.TestStack doGet
 Press Ctrl+C to abort.
 Affect(class-cnt:1 , method-cnt:1) cost in 286 ms.
@@ -267,7 +243,7 @@ See what is slowing down your method invocation with trace command:
 
 Watch the first parameter and thrown exception of `test.arthas.TestWatch#doGet` only if it throws exception.
 
-```bash
+```
 $ watch test.arthas.TestWatch doGet {params[0], throwExp} -e
 Press Ctrl+C to abort.
 Affect(class-cnt:1 , method-cnt:1) cost in 65 ms.
@@ -279,9 +255,9 @@ ts=2018-09-18 10:26:28;result=@ArrayList[
 
 #### Monitor
 
-Monitor a specific method invocation statistics, including total number of invocations, average response time, success rate, and every 5 seconds:
+Monitor a specific method invocation statistics, including total number of invocations, average response time, success rate, every 5 seconds:
 
-```bash
+```
 $ monitor -c 5 org.apache.dubbo.demo.provider.DemoServiceImpl sayHello
 Press Ctrl+C to abort.
 Affect(class-cnt:1 , method-cnt:1) cost in 109 ms.
@@ -300,9 +276,9 @@ Affect(class-cnt:1 , method-cnt:1) cost in 109 ms.
 
 #### Time Tunnel(tt)
 
-Record method invocation data, so that you can check the method invocation parameters, returned value, and thrown exceptions later. It works as if you could come back and replay the past method invocation via time tunnel.
+Record method invocation data, so that you can check the method invocation parameters, returned value and thrown exception later. It works as if you could come back and replay the past method invocation via time tunnel.
 
-```bash
+```
 $ tt -t org.apache.dubbo.demo.provider.DemoServiceImpl sayHello
 Press Ctrl+C to abort.
 Affect(class-cnt:1 , method-cnt:1) cost in 75 ms.
@@ -321,7 +297,7 @@ Affect(class-cnt:1 , method-cnt:1) cost in 75 ms.
 
 #### Classloader
 
-```bash
+```
 $ classloader
  name                                                  numberOfInstances  loadedCountTotal
  BootstrapClassLoader                                  1                  3346
@@ -374,22 +350,6 @@ Welcome to register the company name in this issue: https://github.com/alibaba/a
 ![offcn](static/offcn.png)
 ![sia](static/sia.png)
 ![振安资产](static/zhenganzichang.png)
-![菠萝](static/bolo.png)
-![中通快递](static/zto.png)
-![光点科技](static/guangdian.png)
-![广州工程技术职业学院](static/gzvtc.jpg)
-![mstar](static/mstar.png)
-![xwbank](static/xwbank.png)
-![imexue](static/imexue.png)
-![keking](static/keking.png)
-![secoo](static/secoo.jpg)
-![viax](static/viax.png)
-![yanedu](static/yanedu.png)
-![duia](static/duia.png)
-![哈啰出行](static/hellobike.png)
-![hollycrm](static/hollycrm.png)
-![citycloud](static/citycloud.jpg)
-![yidianzixun](static/yidianzixun.png)
 
 ### Credit
 
@@ -405,5 +365,3 @@ This project exists thanks to all the people who contribute.
 * [termd](https://github.com/termd/termd): Arthas's terminal implementation is based on termd, an open source library for writing terminal applications in Java.
 * [crash](https://github.com/crashub/crash): Arthas's text based user interface rendering is based on codes extracted from [here](https://github.com/crashub/crash/tree/1.3.2/shell)
 * [cli](https://github.com/eclipse-vertx/vert.x/tree/master/src/main/java/io/vertx/core/cli): Arthas's command line interface implementation is based on cli, open sourced by vert.x
-* [compiler](https://github.com/skalogs/SkaETL/tree/master/compiler) Arthas's memory compiler.
-* [Apache Commons Net](https://commons.apache.org/proper/commons-net/) Arthas's telnet client.

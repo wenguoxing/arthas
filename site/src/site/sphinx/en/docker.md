@@ -61,6 +61,4 @@ FROM openjdk:8-jdk-alpine
 COPY --from=hengyunabc/arthas:latest /opt/arthas /opt/arthas
 ```
 
-If you want to specify a version, you can view all the tags:
-
-[https://hub.docker.com/r/hengyunabc/arthas/tags](https://hub.docker.com/r/hengyunabc/arthas/tags)
+[https://hub.docker.com/r/hengyunabc/arthas](https://hub.docker.com/r/hengyunabc/arthas)

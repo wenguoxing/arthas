@@ -45,8 +45,5 @@
     <file>
       <source>../bin/as.bat</source>
     </file>
-    <file>
-      <source>../bin/as-service.bat</source>
-    </file>
   </files>
 </assembly>
